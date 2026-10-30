@@ -1,0 +1,49 @@
+# Out-of-source CMake / IDE builds
+/build/
+/build-*/
+/cmake-build-*/
+/out/
+/.vs/
+/.vscode/
+/.idea/
+/.cache/
+CMakeUserPresets.json
+
+# Compiler output, profiles and debug files
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+*.exe
+*.pdb
+*.ilk
+*.exp
+*.idb
+*.log
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+# IDE / OS / Python caches
+*.user
+*.suo
+*.sln.docstates
+*.swp
+*~
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local CPU-only test executable
+/wow_tests
+/wow_tests.exe
+
+# Keep source assets, shaders and bundled third-party libraries in Git.
+# IMPORTANT: Do not ignore /external/; the final project must vendor sources.
