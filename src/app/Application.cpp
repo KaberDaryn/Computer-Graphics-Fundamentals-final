@@ -12,6 +12,10 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <cstdlib>
+#include <fstream>
+#include <vector>
+#include <numeric>
 
 namespace {
 void errorCallback(int error, const char* message) {
@@ -159,6 +163,19 @@ void Application::runScene() {
     Shader sky("assets/shaders/sky.vert", "assets/shaders/sky.frag");
     Shader screen("assets/shaders/screen.vert", "assets/shaders/screen.frag");
     Scene scene;
+    const char* benchmarkMode = std::getenv("DDD_BENCHMARK");
+    const bool benchmark = benchmarkMode != nullptr;
+    if (benchmark) {
+        glfwSwapInterval(0);
+        int bw=0,bh=0; glfwGetFramebufferSize(window_, &bw, &bh);
+        std::cout << "Framebuffer: " << bw << "x" << bh << "; VSync=0; warmup=2s; sample=15s\n";
+        scene.setFeedEnabled(std::string(benchmarkMode) != "off");
+        std::cout << "Renderer: " << glGetString(GL_RENDERER) << "\nVendor: "
+                  << glGetString(GL_VENDOR) << "\n";
+    }
+    std::vector<double> frameTimes;
+    bool finaleStarted = false;
+    const double benchmarkStart = glfwGetTime();
     Framebuffer secondaryFeed(640, 368); // approximately the monitor's ratio
     UiPanel ui(window_);
 
@@ -186,7 +203,10 @@ void Application::runScene() {
         previous = now;
         glfwPollEvents();
         const float dt = float(std::clamp(rawDt, 0.0, 0.05));
-        processInput(dt, scene, ui);
+        if (!benchmark) processInput(dt, scene, ui);
+        if (benchmark && !finaleStarted && std::string(benchmarkMode) == "finale" && now-benchmarkStart >= 2.0) {
+            scene.toggleFinale(); finaleStarted = true;
+        }
         scene.update(dt);
 
         int width = 0, height = 0;
@@ -227,7 +247,18 @@ void Application::runScene() {
             ui.beginFrame();
             ui.draw(scene, fps);
             ui.endFrame();
+            if (benchmark) glFinish(); // Include completed GPU work in frame timing.
             glfwSwapBuffers(window_);
+            if (benchmark && now-benchmarkStart >= 2.0) frameTimes.push_back(glfwGetTime()-now);
+            if (benchmark && now-benchmarkStart >= 17.0) {
+                std::ofstream csv(std::string("benchmark_")+benchmarkMode+".csv");
+                csv << "frame_ms\n";
+                for (double t : frameTimes) csv << std::setprecision(10) << t*1000.0 << '\n';
+                const double total = std::accumulate(frameTimes.begin(),frameTimes.end(),0.0);
+                std::cout << "Benchmark " << benchmarkMode << ": " << frameTimes.size()/total
+                          << " average FPS; frames=" << frameTimes.size() << "\n";
+                glfwSetWindowShouldClose(window_,true);
+            }
         }
 
         elapsed += rawDt;

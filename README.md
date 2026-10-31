@@ -34,7 +34,7 @@ cmake --build build --parallel
 cd build && ./DreamDeveloperDesk
 ```
 
-CMake copies assets beside the executable. Run from that directory so relative asset paths resolve correctly.
+CMake copies assets beside the executable. The application finds assets beside the executable first, then in the working directory and original source tree; launching with an absolute executable path from another directory is supported.
 
 ## Controls
 
@@ -56,14 +56,37 @@ The panel also adjusts RGB colour, speed and daylight. FPS is displayed in the p
 
 ## Testing
 
-`ctest --test-dir build -C Release --output-on-failure` runs the finale state-machine test. The Windows UCRT64 Release build and CPU test were run successfully; the application and second-camera view were visually inspected. The window displayed approximately 144 FPS on the development machine with VSync enabled. This is not a benchmark on the TA machine. Linux and Visual Studio builds still need verification in those environments.
+```powershell
+ctest --test-dir build -C Release --output-on-failure
+```
+
+Tests cover the finale state machine and orbit-camera controls. Clean Windows GCC/Ninja Debug and Release builds passed, with 2/2 tests passing in each. The application was also launched from another working directory. See [VALIDATION.md](VALIDATION.md) for measured performance, evidence and platform limitations. Linux and Visual Studio builds still require verification. All bundled dependencies build from local sources without downloads.
 
 `src/` contains application, scene, rendering and UI modules; `assets/` contains textures and shaders; `tests/` contains the CPU test; `external/` contains third-party libraries and licenses. See [CREDITS.md](CREDITS.md).
 
 ## Team and AI use
 
-Team members: Kaber Daryn, Arthur Kopzhasarov, Ernar Sadenov and Erkebulan Sovetov. The team should add each member's actual responsibilities before submission.
+Team members and assigned responsibilities are listed below.
 
 OpenAI ChatGPT assisted with the initial architecture, C++/GLSL code, generated textures, tests and documentation; Codex assisted with dependency integration, build verification and repository cleanup. Team members should review and understand the implementation and accurately disclose their own changes and AI use in the report.
 
 The course also requires a report, presentation, demo video, genuine contribution history and a `v1.0` release on the submission date. These require team input, recordings and verification and are not represented as completed here.
+
+## Assigned code responsibilities
+
+- Kaber Daryn: Application, Camera, Shader, Mesh, Scene, WowSequence, GitHub integration and submission coordination.
+- Arthur Kopzhasarov: CMake, dependencies, Texture, Visual Studio builds and build troubleshooting.
+- Ernar Sadenov: RoomFactory, DeskFactory, furniture geometry, RGB shader, Lighting and visual improvements.
+- Erkebulan Sovetov: Framebuffer, monitor shader, sky shader, day/night, ImGui and demonstration responsibilities.
+
+## Reproducible performance check
+
+Use a Release build. In PowerShell, run these commands from the repository root:
+
+```powershell
+$env:DDD_BENCHMARK = 'feed' # alternatively 'off' or 'finale'
+./build/DreamDeveloperDesk.exe
+Remove-Item Env:DDD_BENCHMARK
+```
+
+Each run disables VSync, uses the default 1280x720 window, warms up for two seconds and measures for fifteen seconds. The finale starts after warmup. The program prints the actual framebuffer dimensions and GL renderer, waits for GPU completion with glFinish each frame, and writes benchmark_MODE.csv beside the executable. Frame times include CPU rendering, UI, completed GPU work and swap; they exclude CSV writing. Compare modes sequentially with other heavy work stopped. These are fixed-camera tests, not an exhaustive benchmark of all views or the TA machine. Ordinary interactive runs retain VSync.

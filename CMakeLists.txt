@@ -68,7 +68,8 @@ add_executable(DreamDeveloperDesk
 target_include_directories(DreamDeveloperDesk PRIVATE
     src external/glm external/stb
 )
-target_compile_definitions(DreamDeveloperDesk PRIVATE GLFW_INCLUDE_NONE)
+target_compile_definitions(DreamDeveloperDesk PRIVATE GLFW_INCLUDE_NONE
+    DREAM_DESK_ASSET_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(DreamDeveloperDesk PRIVATE glfw glad imgui OpenGL::GL)
 
 if(MSVC)
@@ -96,4 +97,10 @@ if(BUILD_TESTING)
     )
     target_include_directories(wow_sequence_tests PRIVATE src)
     add_test(NAME WowSequenceStateMachine COMMAND wow_sequence_tests)
+endif()
+
+if(BUILD_TESTING)
+    add_executable(camera_tests tests/CameraTests.cpp src/graphics/Camera.cpp)
+    target_include_directories(camera_tests PRIVATE src external/glm)
+    add_test(NAME CameraControls COMMAND camera_tests)
 endif()

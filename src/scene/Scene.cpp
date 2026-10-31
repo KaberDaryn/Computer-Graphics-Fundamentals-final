@@ -80,21 +80,26 @@ glm::vec3 Scene::rgbLightColor(float time) const {
 
 void Scene::setDayFactor(float factor) {
     if (wow_.active()) return;
-    dayFactor_ = std::clamp(factor, 0.0f, 1.0f);
+    dayFactor_ = targetDayFactor_ = std::clamp(factor, 0.0f, 1.0f);
 }
 void Scene::toggleDayNight() {
-    setDayFactor(dayFactor_ >= 0.5f ? 0.0f : 1.0f);
+    if (!wow_.active()) targetDayFactor_ = targetDayFactor_ >= 0.5f ? 0.0f : 1.0f;
 }
 
 void Scene::toggleFinale() {
     if (!wow_.active()) {
         // The controller saves values, while original UI settings remain intact.
+        targetDayFactor_ = dayFactor_;
         wow_.start(dayFactor_, lampOn_ ? 1.0f : 0.0f);
     } else {
         wow_.restore(); // Also works during the initial fade.
     }
 }
 void Scene::update(float deltaTime) {
+    if (!wow_.active()) {
+        const float step = std::max(0.0f, deltaTime) * 0.55f;
+        dayFactor_ += std::clamp(targetDayFactor_ - dayFactor_, -step, step);
+    }
     wow_.update(deltaTime);
     // Only a material uniform changes; static vertex buffers never re-upload.
     bulb_->emission = glm::vec3(0.90f, 0.65f, 0.30f) * lampBrightness();

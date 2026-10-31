@@ -69,5 +69,6 @@ private:
     bool lampOn_ = true;
     bool feedEnabled_ = true;
     float dayFactor_ = 1.0f;
+    float targetDayFactor_ = 1.0f;
     WowSequence wow_{};
 };

@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include "scene/WowSequence.hpp"
 #include <cassert>
 #include <cmath>

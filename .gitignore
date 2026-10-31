@@ -47,3 +47,10 @@ __pycache__/
 
 # Keep source assets, shaders and bundled third-party libraries in Git.
 # IMPORTANT: Do not ignore /external/; the final project must vendor sources.
+
+# Alternate local build directories and virtual environments
+/build_*/
+/venv/
+/.venv/
+benchmark_*.csv
+imgui.ini

@@ -16,6 +16,9 @@ Texture::Texture(const std::string& filename) {
         stbi_image_free(pixels);
         throw std::runtime_error("Unsupported texture components: " + filename);
     }
+    GLint previousAlignment = 4, previousTexture = 0;
+    glGetIntegerv(GL_UNPACK_ALIGNMENT, &previousAlignment);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousTexture);
     glGenTextures(1, &id_);
     glBindTexture(GL_TEXTURE_2D, id_);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -26,8 +29,8 @@ Texture::Texture(const std::string& filename) {
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, previousAlignment);
+    glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(previousTexture));
     stbi_image_free(pixels);
 }
 Texture::~Texture() { if (id_) glDeleteTextures(1, &id_); }
