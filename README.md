@@ -70,8 +70,6 @@ Team members and assigned responsibilities are listed below.
 
 OpenAI ChatGPT assisted with the initial architecture, C++/GLSL code, generated textures, tests and documentation; Codex assisted with dependency integration, build verification and repository cleanup. Team members should review and understand the implementation and accurately disclose their own changes and AI use in the report.
 
-The course also requires a report, presentation, demo video, genuine contribution history and a `v1.0` release on the submission date. These require team input, recordings and verification and are not represented as completed here.
-
 ## Assigned code responsibilities
 
 - Kaber Daryn: Application, Camera, Shader, Mesh, Scene, WowSequence, GitHub integration and submission coordination.
